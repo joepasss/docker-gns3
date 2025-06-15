@@ -1,6 +1,3 @@
-[submodule "jq"]
-	path = jq
-	url = https://github.com/jqlang/jq
 [submodule "dependencies/dynamips"]
 	path = dependencies/dynamips
 	url = git@github.com:GNS3/dynamips.git
