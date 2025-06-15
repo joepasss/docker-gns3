@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: submodule init
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 0
     
     - uses: actions/checkout@v4
     - name: Setup environment
