@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 PYTHON_PATH=$(python -c "import site; print(site.getsitepackages()[0])")
 GNS_BIN="$PYTHON_PATH/bin/gns3server"
 
