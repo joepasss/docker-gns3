@@ -1,0 +1,14 @@
+net-libs/gnutls tools pkcs11
+
+app-containers/docker container-init overlay2
+app-containers/docker -btrfs
+
+app-containers/containerd cri
+app-containers/containerd -btrfs -device-mapper
+
+app-emulation/qemu usb
+app-emulation/qemu -accessibility -bpf -capstone -fuse -glusterfs -nfs -rbd -iscsi -multipath -jpeg -png -keyutils -systemtap -debug -test -plugins -sdl -sdl-image -gtk -virgl -vte -spice -wayland -X -vde -xattr -xdp -xen -virtfs -ssh
+
+net-dns/dnsmasq script
+net-dns/dnsmasq -auth-dns -conntrack -dhcp-tools -dnssec -id -libidn2 -loop -nettlehash
+

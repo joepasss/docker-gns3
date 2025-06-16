@@ -15,12 +15,10 @@ COPY ./scripts/build_dependencies.sh /scripts/build_dependencies.sh
 COPY ./scripts/cleanup.sh /scripts/cleanup.sh
 COPY ./scripts/start.sh /start.sh
 
-COPY ./gentoo-20250615.tar.xz /var/db/repos/gentoo.tar.xz
-RUN mkdir -p /var/db/repos/gentoo && \
-	tar -xpf /var/db/repos/gentoo.tar.xz -C /var/db/repos/gentoo --strip-components=1 && \
-	rm /var/db/repos/gentoo.tar.xz
+RUN emerge-webrsync
 
 RUN /scripts/write_flags.sh
+COPY ./package.use/gns3 /etc/portage/package.use/gns3
 
 RUN emerge -vq --oneshot dev-lang/go-bootstrap
 RUN emerge -vq \
