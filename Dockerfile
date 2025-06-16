@@ -19,6 +19,7 @@ RUN emerge-webrsync
 
 RUN /scripts/write_flags.sh
 COPY ./package.use/gns3 /etc/portage/package.use/gns3
+COPY ./profile/package.provided /etc/portage/profile/package.provided
 
 RUN emerge -vq --oneshot dev-lang/go-bootstrap
 RUN emerge -vq \

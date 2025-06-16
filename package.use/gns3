@@ -12,3 +12,25 @@ app-emulation/qemu -accessibility -bpf -capstone -fuse -glusterfs -nfs -rbd -isc
 net-dns/dnsmasq script
 net-dns/dnsmasq -auth-dns -conntrack -dhcp-tools -dnssec -id -libidn2 -loop -nettlehash
 
+sys-apps/util-linux -su
+sys-apps/iproute2 -minimal
+
+virtual/man -man
+
+sys-devel/gcc -fortran -openmp -pie -sanitize -ssp
+app-alternatives/ninja -reference
+sys-devel/binutils -plugins -zstd
+dev-lang/python -ensurepip -gdbm -sqlite
+dev-lang/perl -gdbm
+sys-kernel/linux-headers headers-only
+sys-fs/e2fsprogs -tools
+sys-apps/iputils -arping
+dev-libs/elfutils -bzip2 -utils
+sys-apps/file -bzip2
+dev-libs/libxlta -crypt
+app-containers/runc -kmem
+app-arch/libarchive -bzip2 -e2fsprogs -iconv -lzma -zstd
+dev-build/cmake -ncurses
+net-libs/gnutls -tls-heartbeat
+sys-apps/systemd-utils -kmod -tmpfiles
+dev-python/pillow -jpeg -zlib
