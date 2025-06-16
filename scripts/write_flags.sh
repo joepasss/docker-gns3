@@ -2,8 +2,20 @@
 
 set -euo pipefail
 
-echo "MAKEOPTS=\"-j1\"" >>/etc/portage/make.conf
-echo "USE=\"minimal -doc -examples -test -alsa -jpeg -pipewire -png -pulseaudio -X -wayland -vnc -jack -opengl -vulkan -bluetooth\"" >>/etc/portage/make.conf
+# in prod, change to MAKEOPTS=-j1 (or 2)
+{
+  #  echo "MAKEOPTS=\"-j$(nproc)\""
+  echo 'MAKEOPTS="-j2"'
 
-echo "net-dns/dnsmasq script" >>/etc/portage/package.use/dnsmasq
-echo "net-libs/gnutls tools pkcs11" >>/etc/portage/package.use/gnutls
+  echo 'USE="minimal seccomp -doc -nls -man -perl -pam -acl -xattr -dbus -udev -systemd -readline -gpm -bash-completion -examples -test -alsa -pipewire -pulseaudio -jack -X -wayland -vnc -opengl -vulkan -cuda -bluetooth -apparmor -hardened -selinux -filecaps -jemalloc -lzo -snappy -sasl -smartcard -oss -idn -lua -gui -openmp -lzma -debug -jpeg"'
+
+  echo 'QEMU_USER_TARGETS="i386 x86_64"'
+  echo 'QEMU_SOFTMMU_TARGETS="i386 x86_64"'
+
+  echo 'FEATURES="-test -sandbox nodoc noinfo noman"'
+  echo 'INSTALL_MASK="/usr/share/man /usr/share/doc /usr/share/info /usr/share/gtk-doc /usr/share/locale /usr/lib/locale"'
+
+  echo 'INPUT_DEVICES=""'
+  echo 'VIDEO_CARDS=""'
+  echo 'ACCEPT_LICENSE="*"'
+} >>/etc/portage/make.conf

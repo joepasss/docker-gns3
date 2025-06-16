@@ -18,6 +18,8 @@ COPY ./scripts/start.sh /start.sh
 RUN emerge-webrsync
 
 RUN /scripts/write_flags.sh
+COPY ./package.use/gns3 /etc/portage/package.use/gns3
+COPY ./profile/package.provided /etc/portage/profile/package.provided
 
 RUN emerge -vq --oneshot dev-lang/go-bootstrap
 RUN emerge -vq \
@@ -31,4 +33,4 @@ RUN emerge -vq --depclean
 RUN /scripts/build_dependencies.sh
 RUN /scripts/cleanup.sh
 
-CMD [ "/start.sh" ]
+CMD [ "/bin/bash" ]
