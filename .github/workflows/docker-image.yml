@@ -133,7 +133,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: qemu build
+      - name: libvirt build
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
