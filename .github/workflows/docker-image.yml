@@ -4,47 +4,15 @@ on:
   push:
     branches: [ "master" ]
 
+env:
+  USER: ${{ secrets.DOCKER_USERNAME }}
+  REPO: gns3-server  
+
 jobs:
-
-  build_amd64:
+  dependencies_init:
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: submodule init
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 0
-    
-    - name: Setup environment
-      run: |
-        echo "VERSION=$(sed -e s/gns3-server==//g requirements.txt)" >> $GITHUB_ENV
-        echo "USER=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
-        echo "REPO=gns3-server" >> $GITHUB_ENV
-
-    - name: set up Docker Buildx
-      uses: docker/setup-buildx-action@3.10.0
-
-    - name: Login to Docker hub
-      uses: docker/login-action@3.4.0
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Build amd64 image
-      uses: docker/build-push-action@v6.18.0
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        platforms: linux/amd64
-        tags: |
-          ${{ env.USER }}/${{ env.REPO }}:${{ env.VERSION }}-amd64
-
-  build_arm64:
-    runs-on: ubuntu-latest
-    needs: build_amd64
-
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
     - name: submodule init
       uses: actions/checkout@v4
@@ -52,56 +20,215 @@ jobs:
         submodules: true
         fetch-depth: 0
 
-    - name: Setup environment
+    - name: set VERSION
+      id: version
       run: |
-        echo "VERSION=$(sed -e s/gns3-server==//g requirements.txt)" >> $GITHUB_ENV
-        echo "USER=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
-        echo "REPO=gns3-server" >> $GITHUB_ENV
+        VERSION=$(sed -nE 's/^gns3-server==(.+)$/\1/p' requirements.txt)
+        if [ -z "$VERSION" ]; then
+          echo "VERSION not found in requirements.txt" >&2
+          exit 1
+        fi
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-    - name: set up Docker Buildx
-      uses: docker/setup-buildx-action@3.10.0
-
-    - name: Login to Docker hub
-      uses: docker/login-action@3.4.0
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Build arm64 image
-      uses: docker/build-push-action@v6.18.0
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        platforms: linux/arm64
-        tags: |
-          ${{ env.USER }}/${{ env.REPO }}:${{ env.VERSION }}-arm64
-
-  create_manifest:
+  build_prepare:
     runs-on: ubuntu-latest
-    needs: [build_amd64, build_arm64]
+    needs: dependencies_init
     steps:
-    - name: Login to Docker Hub
-      uses: docker/login-action@3.4.0
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Create and push manifest
-      run: |
-          VERSION=$(sed -e s/gns3-server==//g requirements.txt)
-          USER=${{ secrets.DOCKER_USERNAME }}
-          REPO=gns3-server
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
 
-          docker manifest create $USER/$REPO:$VERSION \
-            $USER/$REPO:${VERSION}-amd64 \
-            $USER/$REPO:${VERSION}-arm64
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-          docker manifest push $USER/$REPO:$VERSION
+      - name: build prepare
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: prepare
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:build_prepare
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:build_prepare,mode=max
+          push: true
+          
+  emerge_prepare:
+    runs-on: ubuntu-latest
+    needs: build_prepare
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-          docker manifest create $USER/$REPO:latest \
-            $USER/$REPO:${VERSION}-amd64 \
-            $USER/$REPO:${VERSION}-arm64
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
 
-          docker manifest push $USER/$REPO:latest
-      
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: emerge prepare
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: emerge_prepare
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:emerge_prepare
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:build_prepare
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:emerge_prepare,mode=max
+          push: true
+
+  qemu_build:
+    runs-on: ubuntu-latest
+    needs: emerge_prepare
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: qemu build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: qemu_build
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:qemu_build
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:emerge_prepare
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:qemu_build,mode=max
+          push: true
+
+  docker_build:
+    runs-on: ubuntu-latest
+    needs: qemu_build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: docker build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: docker_build
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:docker_build
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:qemu_build
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:docker_build,mode=max
+          push: true
+
+  gns3_dependencies_build:
+    runs-on: ubuntu-latest
+    needs: docker_build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: gns3 dependencies build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: gns3_dependencies_build
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:docker_build
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build,mode=max
+          push: true
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: gns3_dependencies_build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: cleanup
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: cleanup
+          platforms: linux/amd64 linux/arm64
+          tags: ${{ env.USER }}/${{ env.REPO }}:cleanup
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build
+          cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:cleanup,mode=max
+          push: true
+
+  final:
+    runs-on: ubuntu-latest
+    needs: cleanup
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: prod
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: prod
+          platforms: linux/amd64 linux/arm64
+          tags: |
+            ${{ env.USER }}/${{ env.REPO }}:${{ needs.dependencies_init.outputs.version }}
+            ${{ env.USER }}/${{ env.REPO }}:latest
+          cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:cleanup
+          push: true
