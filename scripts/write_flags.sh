@@ -4,10 +4,10 @@ set -euo pipefail
 
 # in prod, change to MAKEOPTS=-j1 (or 2)
 {
-  #  echo "MAKEOPTS=\"-j$(nproc)\""
+  # echo "MAKEOPTS=\"-j$(nproc)\""
   echo 'MAKEOPTS="-j2"'
 
-  echo 'USE="minimal seccomp -doc -nls -man -perl -pam -acl -xattr -dbus -udev -systemd -readline -gpm -bash-completion -examples -test -alsa -pipewire -pulseaudio -jack -X -wayland -vnc -opengl -vulkan -cuda -bluetooth -apparmor -hardened -selinux -filecaps -jemalloc -lzo -snappy -sasl -smartcard -oss -idn -lua -gui -openmp -lzma -debug -jpeg"'
+  echo 'USE="minimal seccomp -doc -nls -man -perl -pam -acl -xattr -dbus -udev -systemd -readline -gpm -bash-completion -examples -test -alsa -pipewire -pulseaudio -jack -X -wayland -vnc -opengl -vulkan -cuda -bluetooth -apparmor -hardened -selinux -filecaps -jemalloc -lzo -snappy -sasl -smartcard -oss -idn -lua -gui -openmp -lzma -jpeg -test-rust"'
 
   echo 'QEMU_USER_TARGETS="i386 x86_64"'
   echo 'QEMU_SOFTMMU_TARGETS="i386 x86_64"'
