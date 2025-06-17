@@ -18,7 +18,6 @@ sys-apps/iproute2 -minimal
 virtual/man -man
 
 sys-devel/gcc -fortran -openmp -pie -sanitize -ssp
-app-alternatives/ninja -reference
 sys-devel/binutils -plugins -zstd
 dev-lang/python -ensurepip -gdbm -sqlite
 dev-lang/perl -gdbm
@@ -32,5 +31,5 @@ app-containers/runc -kmem
 app-arch/libarchive -bzip2 -e2fsprogs -iconv -lzma -zstd
 dev-build/cmake -ncurses
 net-libs/gnutls -tls-heartbeat
-sys-apps/systemd-utils -kmod -tmpfiles
+sys-apps/systemd-utils -kmod tmpfiles
 dev-python/pillow -jpeg -zlib
