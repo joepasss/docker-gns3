@@ -31,7 +31,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: release
-          branch: master
+          branch: master-to-relase-${{ github.sha }}
           title: "Dependencies update"
           body: "Dependabot update synced from master to release"
           draft: false
