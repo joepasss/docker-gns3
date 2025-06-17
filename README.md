@@ -1,8 +1,14 @@
-### joepasss/docker-gns3
+## joepasss/docker-gns3
 
-docker gns3server
+docker gns3-server
+
 [GNS3/gns3-server](https://github.com/GNS3/gns3-server)
 
+[joepasss/gns3-server dockerhub](https://hub.docker.com/repository/docker/joepasss/gns3-server)
+
+---
+
+## Usage
 
 ### how to build?
 
@@ -37,6 +43,8 @@ docker run \
     -v <data path>:/data \
     joepasss/gns3-server:latest
 ```
+
+---
 
 ### parameters
 
