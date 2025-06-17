@@ -48,7 +48,7 @@ FROM libpcap_build AS docker_build
 
 RUN emerge -vq \
 	app-containers/docker
-
+  
 FROM docker_build AS gns3_dependencies_build
 
 RUN /scripts/build_dependencies.sh
