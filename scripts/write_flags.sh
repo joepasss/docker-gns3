@@ -2,10 +2,16 @@
 
 set -euo pipefail
 
-# in prod, change to MAKEOPTS=-j1 (or 2)
+IS_PROD="${IS_PROD:-false}"
+
+if [[ "$IS_PROD" == "true" ]]; then
+  MAKEJOBS="1"
+else
+  MAKEJOBS="$(nproc)"
+fi
+
 {
-  # echo "MAKEOPTS=\"-j$(nproc)\""
-  echo 'MAKEOPTS="-j2"'
+  echo "MAKEOPTS=\"-j$MAKEJOBS\""
 
   echo 'USE="minimal seccomp -doc -nls -man -perl -pam -acl -xattr -dbus -udev -systemd -readline -gpm -bash-completion -examples -test -alsa -pipewire -pulseaudio -jack -X -wayland -vnc -opengl -vulkan -cuda -bluetooth -apparmor -hardened -selinux -filecaps -jemalloc -lzo -snappy -sasl -smartcard -oss -idn -lua -gui -openmp -lzma -jpeg -test-rust"'
 

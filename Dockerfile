@@ -1,5 +1,8 @@
 FROM gentoo/stage3 AS prepare
 
+ARG IS_PROD=false
+ENV IS_PROD=${IS_PROD}
+
 RUN mkdir /sources
 RUN mkdir /scripts
 
@@ -36,12 +39,16 @@ FROM qemu_build AS libvirt_build
 RUN emerge -vq \
 	app-emulation/libvirt
 
-FROM libvirt_build AS docker_build
+FROM libvirt_build AS libpcap_build
 
 RUN emerge -vq \
-	app-containers/docker \
 	net-libs/libpcap
 
+FROM libpcap_build AS docker_build
+
+RUN emerge -vq \
+	app-containers/docker
+  
 FROM docker_build AS gns3_dependencies_build
 
 RUN /scripts/build_dependencies.sh
