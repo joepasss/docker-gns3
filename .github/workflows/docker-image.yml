@@ -53,7 +53,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: prepare
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:build_prepare
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:build_prepare,mode=max
           push: true
@@ -81,7 +81,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: emerge_prepare
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:emerge_prepare
           cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:build_prepare
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:emerge_prepare,mode=max
@@ -110,7 +110,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: qemu_build
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:qemu_build
           cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:emerge_prepare
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:qemu_build,mode=max
@@ -139,7 +139,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: docker_build
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:docker_build
           cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:qemu_build
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:docker_build,mode=max
@@ -168,7 +168,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: gns3_dependencies_build
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build
           cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:docker_build
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build,mode=max
@@ -197,7 +197,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: cleanup
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: ${{ env.USER }}/${{ env.REPO }}:cleanup
           cache-from: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:gns3_dependencies_build
           cache-to: type=registry,ref=${{ env.USER }}/${{ env.REPO }}:cleanup,mode=max
@@ -226,7 +226,7 @@ jobs:
           context: .
           file: ./Dockerfile
           target: prod
-          platforms: linux/amd64 linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: |
             ${{ env.USER }}/${{ env.REPO }}:${{ needs.dependencies_init.outputs.version }}
             ${{ env.USER }}/${{ env.REPO }}:latest
