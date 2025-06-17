@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
       - name: Enable auto-merge for PR to release
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
