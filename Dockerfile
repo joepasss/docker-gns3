@@ -24,20 +24,25 @@ COPY ./package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
 RUN emerge -vq --oneshot dev-lang/go-bootstrap
+RUN emerge -vq dev-build/cmake
 
 FROM emerge_prepare AS qemu_build
 
 RUN emerge -vq \
-	app-emulation/qemu \
+	app-emulation/qemu
+
+FROM qemu_build AS libvirt_build
+
+RUN emerge -vq \
 	app-emulation/libvirt
 
-FROM qemu_build AS docker_build
+FROM libvirt_build AS docker_build
 
 RUN emerge -vq \
 	app-containers/docker \
 	net-libs/libpcap
 
-FROM qemu_build AS gns3_dependencies_build
+FROM docker_build AS gns3_dependencies_build
 
 RUN /scripts/build_dependencies.sh
 
