@@ -29,35 +29,35 @@ RUN /scripts/write_flags.sh
 COPY ./package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
-RUN emerge -vq --oneshot \
+RUN emerge -v --oneshot \
 	dev-lang/go-bootstrap \
 	net-libs/gnutls
 
 RUN getuto
-RUN emerge -gvq dev-build/cmake
+RUN emerge -gv dev-build/cmake
 
 ### QEMU BUILD
 FROM emerge_prepare AS qemu_build
 
-RUN emerge -gvq \
+RUN emerge -gv \
 	app-emulation/qemu
 
 ### LIBVIRT BUILD
 FROM qemu_build AS libvirt_build
 
-RUN emerge -gvq \
+RUN emerge -gv \
 	app-emulation/libvirt
 
 ### LIBPCAP BUILD
 FROM libvirt_build AS libpcap_build
 
-RUN emerge -gvq \
+RUN emerge -gv \
 	net-libs/libpcap
 
 ### DOCKER BUILD
 FROM libpcap_build AS docker_build
 
-RUN emerge -gvq \
+RUN emerge -gv \
 	app-containers/docker
   
 ### GNS DEPENDENCIES BUILD
@@ -68,7 +68,7 @@ RUN /scripts/build_dependencies.sh
 ### CLEANUP
 FROM gns3_dependencies_build AS cleanup
 
-RUN emerge -vq --depclean
+RUN emerge -v --depclean
 RUN /scripts/cleanup.sh
 
 ### FINAL
