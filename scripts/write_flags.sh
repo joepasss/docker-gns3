@@ -24,4 +24,5 @@ fi
   echo 'INPUT_DEVICES=""'
   echo 'VIDEO_CARDS=""'
   echo 'ACCEPT_LICENSE="*"'
+  echo 'BINPKG_FORMAT="gpkg"'
 } >>/etc/portage/make.conf
