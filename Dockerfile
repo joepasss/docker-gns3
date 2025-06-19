@@ -7,6 +7,7 @@ RUN mkdir /scripts
 COPY ./dependencies/dynamips /sources/dynamips
 COPY ./dependencies/ubridge /sources/ubridge
 COPY ./dependencies/vpcs /sources/vpcs
+COPY ./dependencies/openssl-0.9.6.tar.gz /sources/openssl-0.9.6.tar.gz
 
 COPY ./config.ini /config.ini
 COPY ./requirements.txt /requirements.txt
@@ -28,31 +29,35 @@ RUN /scripts/write_flags.sh
 COPY ./package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
-RUN emerge -vq --oneshot dev-lang/go-bootstrap
-RUN emerge -vq dev-build/cmake
+RUN emerge -vq --oneshot \
+	dev-lang/go-bootstrap \
+	net-libs/gnutls
+
+RUN getuto
+RUN emerge -gvq dev-build/cmake
 
 ### QEMU BUILD
 FROM emerge_prepare AS qemu_build
 
-RUN emerge -vq \
+RUN emerge -gvq \
 	app-emulation/qemu
 
 ### LIBVIRT BUILD
 FROM qemu_build AS libvirt_build
 
-RUN emerge -vq \
+RUN emerge -gvq \
 	app-emulation/libvirt
 
 ### LIBPCAP BUILD
 FROM libvirt_build AS libpcap_build
 
-RUN emerge -vq \
+RUN emerge -gvq \
 	net-libs/libpcap
 
 ### DOCKER BUILD
 FROM libpcap_build AS docker_build
 
-RUN emerge -vq \
+RUN emerge -gvq \
 	app-containers/docker
   
 ### GNS DEPENDENCIES BUILD
