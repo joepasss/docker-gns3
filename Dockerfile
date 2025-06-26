@@ -49,6 +49,7 @@ RUN <<-EOF
 	esac
 EOF
 
+RUN mkdir -p /run/lock
 RUN getuto
 
 FROM emerge_prepare AS build

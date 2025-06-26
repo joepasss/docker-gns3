@@ -1,4 +1,4 @@
-et-libs/gnutls tools pkcs11
+net-libs/gnutls tools pkcs11
 
 app-containers/docker container-init overlay2
 app-containers/docker -btrfs
