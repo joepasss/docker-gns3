@@ -50,7 +50,6 @@ RUN <<-EOF
 EOF
 
 RUN getuto
-RUN emerge --usepkgonly -v dev-build/cmake
 
 FROM emerge_prepare AS build
 
