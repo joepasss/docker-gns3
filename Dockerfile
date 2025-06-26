@@ -29,49 +29,40 @@ RUN /scripts/write_flags.sh
 COPY ./package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
+RUN <<-EOF
+	set -e
+
+	TARGET="/etc/portage/make.conf"
+	ARCH=$(uname -m)
+
+	case "$ARCH" in
+		x86_64) echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/amd64"' >> "$TARGET"
+		aarch64) echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/aarch64"' >> "$TARGET"
+		*) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+	esac
+EOF
+
 RUN emerge -v --oneshot \
 	dev-lang/go-bootstrap \
 	net-libs/gnutls
 
 RUN getuto
-RUN emerge -gv dev-build/cmake
+RUN emerge --usepkgonly -v dev-build/cmake
 
-### QEMU BUILD
-FROM emerge_prepare AS qemu_build
+FROM emerge_prepare AS build
 
-RUN emerge -gv \
-	app-emulation/qemu
-
-### LIBVIRT BUILD
-FROM qemu_build AS libvirt_build
-
-RUN emerge -gv \
-	app-emulation/libvirt
-
-### LIBPCAP BUILD
-FROM libvirt_build AS libpcap_build
-
-RUN emerge -gv \
-	net-libs/libpcap
-
-### DOCKER BUILD
-FROM libpcap_build AS docker_build
-
-RUN emerge -gv \
+RUN emerge -gvq \
+	app-emulation/qemu \
+	app-emulation/libvirt \
+	net-libs/libpcap \
 	app-containers/docker
-  
-### GNS DEPENDENCIES BUILD
-FROM docker_build AS gns3_dependencies_build
 
 RUN /scripts/build_dependencies.sh
 
 ### CLEANUP
-FROM gns3_dependencies_build AS cleanup
-
 RUN emerge -v --depclean
 RUN /scripts/cleanup.sh
 
-### FINAL
-FROM cleanup AS prod
+FROM build AS prod
 
 CMD [ "/start.sh" ]
