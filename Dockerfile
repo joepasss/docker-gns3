@@ -52,7 +52,14 @@ EOF
 RUN mkdir -p /run/lock
 RUN getuto
 
-FROM emerge_prepare AS build
+FROM emerge_prepare AS deps
+
+RUN emerge -vq --oneshot \
+	dev-build/cmake \
+	dev-build/meson \
+	dev-build/ninja
+
+FROM deps AS build
 
 RUN emerge -gvq \
 	app-emulation/qemu \
