@@ -36,9 +36,16 @@ RUN <<-EOF
 	ARCH=$(uname -m)
 
 	case "$ARCH" in
-		x86_64) echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/amd64"' >> "$TARGET"
-		aarch64) echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/aarch64"' >> "$TARGET"
-		*) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+		x86_64) 
+			echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/amd64"' >> "$TARGET"
+			;;
+		aarch64) 
+			echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/aarch64"' >> "$TARGET"
+			;;
+		*) 
+			echo "Unsupported architecture: $ARCH"
+			exit 1 
+			;;
 	esac
 EOF
 
