@@ -49,10 +49,6 @@ RUN <<-EOF
 	esac
 EOF
 
-RUN emerge -v --oneshot \
-	dev-lang/go-bootstrap \
-	net-libs/gnutls
-
 RUN getuto
 RUN emerge --usepkgonly -v dev-build/cmake
 
