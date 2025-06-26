@@ -30,7 +30,7 @@ jobs:
         fi
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-  build&deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
     needs: dependencies_init
     steps:
