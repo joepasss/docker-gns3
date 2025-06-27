@@ -43,6 +43,6 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64, linux/arm64
           tags: |
-            ${{ env.USER }}/${{ env.REPO }}:${{ needs.dependencies_init.outputs.version }}
+            ${{ env.USER }}/${{ env.REPO }}:${{ steps.version.outputs.version }}
             ${{ env.USER }}/${{ env.REPO }}:latest
           push: true
