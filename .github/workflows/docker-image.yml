@@ -9,23 +9,60 @@ env:
   REPO: gns3-server  
 
 jobs:
-  build_and_deploy:
+  set_version:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: |
+          VERSION=$(sed -nE 's/^gns3-server==(.+)$/\1/p' requirements.txt)
+          if [ -z "$VERSION" ]; then
+            echo "VERSION not found" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+  build_arm64:
+    runs-on: self-hosted
+    needs: set_version
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
 
-      - name: set VERSION
-        id: version
-        run: |
-          VERSION=$(sed -nE 's/^gns3-server==(.+)$/\1/p' requirements.txt)
-          if [ -z "$VERSION" ]; then
-            echo "VERSION not found in requirements.txt" >&2
-            exit 1
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@3.10.0
+
+      - name: login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: arm64 image build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platform: linux/arm64
+          tags: |
+            ${{ env.USER }}/${{ env.REPO }}-arm64:${{ needs.set_version.outputs.version }}
+            ${{ env.USER }}/${{ env.REPO }}-arm64:latest
+          push: true
+
+  build_amd64:
+    runs-on: ubuntu-latest
+    needs: set_version
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
 
       - name: set up Docker Buildx
         uses: docker/setup-buildx-action@3.10.0
@@ -36,13 +73,37 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: prod
+      - name: amd64 image build
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
           tags: |
-            ${{ env.USER }}/${{ env.REPO }}:${{ steps.version.outputs.version }}
-            ${{ env.USER }}/${{ env.REPO }}:latest
+            ${{ env.USER }}/${{ env.REPO }}-amd64:${{ needs.set_version.outputs.version }}
+            ${{ env.USER }}/${{ env.REPO }}-amd64:latest
           push: true
+
+  merge-manifest:
+    runs-on: ubuntu-latest
+    needs: [set_version, build_arm64, build_amd64]
+    steps:
+      - name: Login to Docker hub
+        uses: docker/login-action@3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Merge and Push Manifest
+        shell: bash
+        run: |
+          docker manifest create "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}" \
+            "${{ env.USER }}/${{ env.REPO }}-amd64:${{ needs.set_version.outputs.version }}" \
+            "${{ env.USER }}/${{ env.REPO }}-arm64:${{ needs.set_version.outputs.version }}"
+
+          docker manifest create "${{ env.USER }}/${{ env.REPO }}:latest" \
+            "${{ env.USER }}/${{ env.REPO }}-amd64:latest" \
+            "${{ env.USER }}/${{ env.REPO }}-arm64:latest"
+
+          docker manifest push "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}"
+          docker manifest push "${{ env.USER}}/${{ env.REPO }}:latest"
