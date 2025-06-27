@@ -57,7 +57,7 @@ RUN getuto
 
 FROM emerge_prepare AS deps
 
-RUN emerge -vq --oneshot \
+RUN emerge -gvq --oneshot \
 	dev-build/cmake \
 	dev-build/meson \
 	dev-build/ninja
