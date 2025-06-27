@@ -42,6 +42,9 @@ RUN <<-EOF
 		arm64) 
 			echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/aarch64"' >> "$TARGET"
 			;;
+		aarch64) 
+			echo 'PORTAGE_BINHOST="https://joepasss.github.io/gentoo-bin/packages/aarch64"' >> "$TARGET"
+			;;
 		*) 
 			echo "Unsupported architecture: $ARCH"
 			exit 1 
