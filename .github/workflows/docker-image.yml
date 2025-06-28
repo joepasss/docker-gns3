@@ -52,8 +52,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/arm64
           tags: |
-            ${{ env.USER }}/${{ env.REPO }}-arm64:${{ needs.set_version.outputs.version }}
-            ${{ env.USER }}/${{ env.REPO }}-arm64:latest
+            ${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}-arm64
+            ${{ env.USER }}/${{ env.REPO }}:latest-arm64
           push: true
 
   build_amd64:
@@ -81,8 +81,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           tags: |
-            ${{ env.USER }}/${{ env.REPO }}-amd64:${{ needs.set_version.outputs.version }}
-            ${{ env.USER }}/${{ env.REPO }}-amd64:latest
+            ${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}-amd64
+            ${{ env.USER }}/${{ env.REPO }}:latest-amd64
           push: true
 
   merge-manifest:
@@ -99,12 +99,12 @@ jobs:
         shell: bash
         run: |
           docker manifest create "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}" \
-            "${{ env.USER }}/${{ env.REPO }}-amd64:${{ needs.set_version.outputs.version }}" \
-            "${{ env.USER }}/${{ env.REPO }}-arm64:${{ needs.set_version.outputs.version }}"
+            "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}-arm64" \
+            "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}-amd64"
 
           docker manifest create "${{ env.USER }}/${{ env.REPO }}:latest" \
-            "${{ env.USER }}/${{ env.REPO }}-amd64:latest" \
-            "${{ env.USER }}/${{ env.REPO }}-arm64:latest"
+            "${{ env.USER }}/${{ env.REPO }}:latest-arm64" \
+            "${{ env.USER }}/${{ env.REPO }}:latest-amd64"
 
           docker manifest push "${{ env.USER }}/${{ env.REPO }}:${{ needs.set_version.outputs.version }}"
           docker manifest push "${{ env.USER}}/${{ env.REPO }}:latest"
