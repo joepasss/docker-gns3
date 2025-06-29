@@ -55,6 +55,24 @@ mv ./vpcs /usr/bin
 
 popd
 
+### libcrypto.so.4 symlink
+target="/usr/lib/libcrypto.so.3"
+
+if [[ ! -f "$target" ]]; then
+  echo "ERROR!: $target file not found"
+  exit 1
+fi
+
+arch_info=$(file "$target")
+
+if echo "$arch_info" | grep -q "32-bit"; then
+  ln -s /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.4
+else
+  echo "ERROR!: file is not 32bit ELF!"
+  echo "$arch_info"
+  exit 1
+fi
+
 ### python
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py --break-system-packages --root-user-action=ignore
