@@ -12,7 +12,7 @@ COPY ./dependencies/openssl-0.9.6.tar.gz /sources/openssl-0.9.6.tar.gz
 COPY ./config.ini /config.ini
 COPY ./requirements.txt /requirements.txt
 
-COPY ./scripts/write_flags.sh /scripts/write_flags.sh
+COPY ./scripts/write_makeopts.sh /scripts/write_makeopts.sh
 COPY ./scripts/build_dependencies.sh /scripts/build_dependencies.sh
 COPY ./scripts/cleanup.sh /scripts/cleanup.sh
 COPY ./scripts/start.sh /start.sh
@@ -25,7 +25,10 @@ ENV IS_PROD=${IS_PROD}
 
 RUN emerge-webrsync
 
-RUN /scripts/write_flags.sh
+RUN rm -rf /etc/portage/make.conf
+COPY ./portage/make.conf /etc/portage/make.conf
+RUN /scripts/write_makeopts.sh
+
 COPY ./portage/package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
@@ -55,6 +58,7 @@ EOF
 RUN mkdir -p /run/lock
 RUN getuto
 
+### BUILD
 FROM emerge_prepare AS deps
 
 RUN emerge -gvq --oneshot \
@@ -83,5 +87,4 @@ RUN /scripts/cleanup.sh
 
 FROM build AS prod
 
-#CMD [ "/start.sh" ]
-CMD [ "/bin/bash" ]
+CMD [ "/start.sh" ]
