@@ -87,5 +87,4 @@ RUN /scripts/cleanup.sh
 
 FROM build AS prod
 
-#CMD [ "/start.sh" ]
 CMD [ "/bin/bash" ]
