@@ -74,12 +74,6 @@ RUN emerge -gvq \
 	net-libs/libpcap \
 	app-containers/docker
 
-### REMOVE BINARY HOST
-RUN sed -i '/^PORTAGE_BINHOST/d' /etc/portage/make.conf
-RUN sed -i 's/\bgetbinpkg\b/-getbinpkg/' /etc/portage/make.conf
-
-RUN USE="abi_x86_32" emerge dev-libs/openssl
-
 WORKDIR /sources
 
 RUN /scripts/build_dependencies.sh
@@ -91,4 +85,5 @@ RUN /scripts/cleanup.sh
 
 FROM build AS prod
 
-CMD [ "/start.sh" ]
+#CMD [ "/start.sh" ]
+CMD [ "/bin/bash" ]
