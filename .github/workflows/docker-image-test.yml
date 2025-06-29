@@ -6,8 +6,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_test:
+  arm64_build_test:
     runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.10.0
+        with:
+          platforms: linux/arm64
+
+      - name: arm64 docker image build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/arm64
+          push: false
+
+  amd64_build_test:
+    runs-on: self-hosted
+    needs: arm64_build_test
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,12 +44,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.10.0
         with:
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
 
-      - name: docker image build (test)
+      - name: amd64 docker image build
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
           push: false
