@@ -63,7 +63,7 @@ case "$ARCH" in
   x86_64)
     sed -i '/^PORTAGE_BINHOST/d' /etc/portage/make.conf
     sed -i 's/\bgetbinpkg\b/-getbinpkg/' /etc/portage/make.conf
-    USE="abi_x86_32" emerge dev-libs/openssl
+    USE="abi_x86_32" emerge -vq dev-libs/openssl
 
     ;;
 
