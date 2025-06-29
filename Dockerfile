@@ -65,14 +65,18 @@ RUN emerge -gvq --oneshot \
 FROM deps AS build
 
 RUN emerge -gvq \
+	dev-libs/openssl \
 	app-emulation/qemu \
 	app-emulation/libvirt \
 	net-libs/libpcap \
 	app-containers/docker
 
+WORKDIR /sources
+
 RUN /scripts/build_dependencies.sh
 
 ### CLEANUP
+WORKDIR /
 RUN emerge -v --depclean
 RUN /scripts/cleanup.sh
 
