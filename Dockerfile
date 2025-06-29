@@ -16,6 +16,7 @@ COPY ./requirements.txt /requirements.txt
 COPY ./scripts/write_makeopts.sh /scripts/write_makeopts.sh
 COPY ./scripts/build_dependencies.sh /scripts/build_dependencies.sh
 COPY ./scripts/cleanup.sh /scripts/cleanup.sh
+COPY ./CiscoKeyGen.py /data/CiscoKeyGen.py
 COPY ./scripts/start.sh /start.sh
 
 ### EMERGE PREPARE
@@ -73,7 +74,8 @@ RUN emerge -gvq \
 	app-emulation/qemu \
 	app-emulation/libvirt \
 	net-libs/libpcap \
-	app-containers/docker
+	app-containers/docker \
+	net-misc/bridge-utils
 
 WORKDIR /sources
 
@@ -81,10 +83,17 @@ RUN /scripts/build_dependencies.sh
 RUN ln -s /libcrypto.so.3 /usr/lib/libcrypto.so.4
 
 ### CLEANUP
-WORKDIR /
+WORKDIR /data
 RUN emerge -v --depclean
 RUN /scripts/cleanup.sh
 
+### IOU KEYGEN (CiscoIOUKeygen3f.py)
+RUN <<-EOF
+	if [[ ! -f /data/iourc.txt ]]; then
+		python3 /data/CiscoKeyGen.py
+	fi
+EOF
+
 FROM build AS prod
 
-CMD [ "/bin/bash" ]
+CMD [ "/start.sh" ]
