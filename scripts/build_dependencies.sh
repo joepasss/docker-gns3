@@ -67,11 +67,15 @@ case "$ARCH" in
 
     ;;
 
-  arm64)
+  arm64 | aarch64)
     wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0/openssl-3.5.0.tar.gz -O /sources/openssl-3.5.0.tar.gz
     tar xpvf /sources/openssl-3.5.0.tar.gz
 
     pushd /sources/openssl-3.5.0 || exit
+
+    export CC="gcc -m32"
+    export CFLAGS="-m32"
+    export LDFLAGS="-m32"
 
     ./Configure linux-generic32 \
       --prefix=/usr \
@@ -81,26 +85,7 @@ case "$ARCH" in
       zlib-dynamic
 
     make
-    make install
-
-    popd || exit
-    ;;
-
-  aarch64)
-    wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0/openssl-3.5.0.tar.gz -O /sources/openssl-3.5.0.tar.gz
-    tar xpvf /sources/openssl-3.5.0.tar.gz
-
-    pushd /sources/openssl-3.5.0 || exit
-
-    ./Configure linux-generic32 \
-      --prefix=/usr \
-      --openssldir=/etc/ssl \
-      --libdir=lib32 \
-      shared \
-      zlib-dynamic
-
-    make
-    make install
+    make install_sw
 
     popd || exit
     ;;
