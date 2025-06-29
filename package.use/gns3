@@ -32,3 +32,5 @@ dev-build/cmake -ncurses
 net-libs/gnutls -tls-heartbeat
 sys-apps/systemd-utils -kmod tmpfiles
 dev-python/pillow -jpeg -zlib
+
+dev-libs/openssl abi_x86_32
