@@ -1,5 +1,8 @@
 name: Update Dependencies
 
+env:
+  GIT_AUTH_TOKEN: ${{ secrets.GH_PAT }}
+
 on:
   schedule:
     - cron: '0 10 * * *'
@@ -31,6 +34,7 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git add dependencies/
             git commit -m "chore: update submodules"
+            git remote set-url origin https://${GIT_AUTH_TOKEN}@github.com/joepasss/docker-gns3.git
             git push
           else
             echo "No submodule updates"
