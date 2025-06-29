@@ -55,6 +55,65 @@ mv ./vpcs /usr/bin
 
 popd
 
+### openssl
+
+ARCH=$(uname -m)
+
+case "$ARCH" in
+  x86_64)
+    sed -i '/^PORTAGE_BINHOST/d' /etc/portage/make.conf
+    sed -i 's/\bgetbinpkg\b/-getbinpkg/' /etc/portage/make.conf
+    USE="abi_x86_32" emerge dev-libs/openssl
+
+    ;;
+
+  arm64)
+    wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0/openssl-3.5.0.tar.gz -O /sources/openssl-3.5.0.tar.gz
+    tar xpvf /sources/openssl-3.5.0.tar.gz
+
+    pushd /sources/openssl-3.5.0 || exit
+
+    ./Configure linux-generic32 \
+      --prefix=/usr \
+      --openssldir=/etc/ssl \
+      --libdir=lib32 \
+      shared \
+      zlib-dynamic
+
+    make
+    make install
+
+    popd || exit
+    ;;
+
+  *) ;;
+esac
+
+readarray -t targets < <(find /usr/lib* -name libcrypto.so.3 2>/dev/null)
+found=0
+
+for target in "${targets[@]}"; do
+  arch_info=$(file "$target")
+
+  if echo "$arch_info" | grep -q "32-bit"; then
+    ln -sf "$target" "/usr/lib/libcrypto.so.4"
+    found=1
+    break
+  fi
+done
+
+if [[ "$found" -eq 0 ]]; then
+  echo "ERROR!: cannot find libcrytpo.so.3"
+  exit 1
+fi
+
+unset targets
+unset found
+unset target_path
+unset arch_info
+
+unset ARCH
+
 ### python
 
 wget https://bootstrap.pypa.io/get-pip.py
