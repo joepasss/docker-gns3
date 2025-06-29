@@ -1,0 +1,33 @@
+name: Docker Image Build Test
+
+on:
+  push:
+    branches: [ "develop" ]
+  workflow_dispatch:
+
+jobs:
+  build_test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.10.0
+        with:
+          platforms: linux/amd64, linux/arm64
+
+      - name: docker image build (test)
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64, linux/arm64
+          push: false
