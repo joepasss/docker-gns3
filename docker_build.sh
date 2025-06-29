@@ -13,9 +13,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   docker rm -f "$CONTAINER_NAME" >/dev/null
 fi
 
-docker run \
-  -rm -d \
-  -it \
+docker run -it \
   --name "$CONTAINER_NAME" \
   --net=host --privileged \
   -e BRIDGE_ADDRESS="172.21.1.1/24" \
