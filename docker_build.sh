@@ -14,6 +14,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
 fi
 
 docker run \
+  -rm -d \
   -it \
   --name "$CONTAINER_NAME" \
   --net=host --privileged \

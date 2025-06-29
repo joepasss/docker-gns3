@@ -26,7 +26,7 @@ ENV IS_PROD=${IS_PROD}
 RUN emerge-webrsync
 
 RUN /scripts/write_flags.sh
-COPY ./package.use/gns3 /etc/portage/package.use/gns3
+COPY ./portage/package.use/gns3 /etc/portage/package.use/gns3
 COPY ./profile/package.provided /etc/portage/profile/package.provided
 
 RUN <<-EOF
@@ -65,11 +65,12 @@ RUN emerge -gvq --oneshot \
 FROM deps AS build
 
 RUN emerge -gvq \
-	dev-libs/openssl \
 	app-emulation/qemu \
 	app-emulation/libvirt \
 	net-libs/libpcap \
 	app-containers/docker
+
+RUN USE="abi_x86_32" emerge dev-libs/openssl
 
 WORKDIR /sources
 
@@ -82,4 +83,5 @@ RUN /scripts/cleanup.sh
 
 FROM build AS prod
 
-CMD [ "/start.sh" ]
+#CMD [ "/start.sh" ]
+CMD [ "/bin/bash" ]
