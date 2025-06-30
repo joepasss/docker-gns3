@@ -51,7 +51,7 @@ pushd /sources/vpcs || exit
 cd src
 ./mk.sh
 
-mv ./vpcs /usr/bin
+mv ./vpcs /usr/local/bin
 
 popd || exit
 
