@@ -87,13 +87,6 @@ WORKDIR /data
 RUN emerge -v --depclean
 RUN /scripts/cleanup.sh
 
-### IOU KEYGEN (CiscoIOUKeygen3f.py)
-RUN <<-EOF
-	if [[ ! -f /data/iourc.txt ]]; then
-		python3 /data/CiscoKeyGen.py
-	fi
-EOF
-
 FROM build AS prod
 
 CMD [ "/start.sh" ]
