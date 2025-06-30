@@ -8,7 +8,6 @@ COPY ./dependencies/dynamips /sources/dynamips
 COPY ./dependencies/ubridge /sources/ubridge
 COPY ./dependencies/vpcs /sources/vpcs
 COPY ./dependencies/libcrypto.so.3 /libcrypto.so.3
-COPY ./dependencies/openssl-0.9.6.tar.gz /sources/openssl-0.9.6.tar.gz
 
 COPY ./config.ini /config.ini
 COPY ./requirements.txt /requirements.txt
