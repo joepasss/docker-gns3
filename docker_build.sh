@@ -3,7 +3,7 @@
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 
 IMAGE_NAME="gns3:local"
-CONTAINER_NAME="gns3"
+CONTAINER_NAME="gns3-local"
 
 docker build \
   --build-arg IS_PROD=false \
