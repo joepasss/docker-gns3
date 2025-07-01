@@ -3,6 +3,7 @@ FROM gentoo/stage3 AS prepare
 
 RUN mkdir /sources
 RUN mkdir /scripts
+RUN mkdir /data
 
 COPY ./dependencies/dynamips /sources/dynamips
 COPY ./dependencies/ubridge /sources/ubridge
