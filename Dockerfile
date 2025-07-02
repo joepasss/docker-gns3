@@ -3,7 +3,6 @@ FROM gentoo/stage3 AS prepare
 
 RUN mkdir /sources
 RUN mkdir /scripts
-RUN mkdir /data
 
 COPY ./dependencies/dynamips /sources/dynamips
 COPY ./dependencies/ubridge /sources/ubridge
@@ -16,7 +15,7 @@ COPY ./requirements.txt /requirements.txt
 COPY ./scripts/write_makeopts.sh /scripts/write_makeopts.sh
 COPY ./scripts/build_dependencies.sh /scripts/build_dependencies.sh
 COPY ./scripts/cleanup.sh /scripts/cleanup.sh
-COPY ./CiscoKeyGen.py /data/CiscoKeyGen.py
+COPY ./CiscoKeyGen.py /CiscoKeyGen.py
 COPY ./scripts/start.sh /start.sh
 
 ### EMERGE PREPARE

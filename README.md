@@ -56,7 +56,7 @@ docker ps
 docker exec -it <continer name> /bin/bash
 
 # in docker container interactive mode
-python3 /data/CiscoIOUKeygen3f.py
+python3 /CiscoIOUKeygen3f.py
 ```
 
 after you generate IOURC key, go to you gns3 client copy & paste generated key
