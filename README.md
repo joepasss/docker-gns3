@@ -63,6 +63,23 @@ after you generate IOURC key, go to you gns3 client copy & paste generated key
 
 ---
 
+### ARM64 MAC IOU
+
+Due to IOU is 32bit binary file, you need QEMU emulation for 32 bit binary
+
+``` bash
+docker run \
+    --rm -d \
+    --platform linux/amd64 \
+    --name gns3 \
+    --net=host --privileged \
+    -e BRIDGE_ADDRESS="172.21.1.1./24" \
+    -v <data path>:/data \
+    joepasss/gns3-server:latest
+```
+
+---
+
 ### parameters
 
 * `-v /data`
